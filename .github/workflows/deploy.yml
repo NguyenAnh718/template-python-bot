@@ -22,7 +22,9 @@ jobs:
             cd "${{ secrets.PROJECT_DIR }}"
 
             echo "🔄 Pull latest code..."
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
+            git config core.fileMode false
 
             echo "📦 Backup database..."
             ./scripts/backup.sh
