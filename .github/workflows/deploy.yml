@@ -46,12 +46,7 @@ jobs:
       - name: Notify Telegram — Success
         if: success()
         run: |
-          REPO="${{ github.event.repository.name }}"
-          SHA="${{ github.sha }}"
-          ACTOR="${{ github.actor }}"
-          MSG="✅ ${REPO} deployed
-Commit: ${SHA:0:7}
-By: ${ACTOR}"
+          MSG=$(printf "✅ ${{ github.event.repository.name }} deployed\nCommit: $(echo ${{ github.sha }} | cut -c1-7)\nBy: ${{ github.actor }}")
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
             --data-urlencode "chat_id=${{ secrets.TG_CHAT_ID }}" \
             --data-urlencode "text=${MSG}"
@@ -59,14 +54,7 @@ By: ${ACTOR}"
       - name: Notify Telegram — Failure
         if: failure()
         run: |
-          REPO="${{ github.event.repository.name }}"
-          SHA="${{ github.sha }}"
-          ACTOR="${{ github.actor }}"
-          RUN_ID="${{ github.run_id }}"
-          MSG="❌ ${REPO} DEPLOY FAILED
-Commit: ${SHA:0:7}
-By: ${ACTOR}
-Logs: https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}"
+          MSG=$(printf "❌ ${{ github.event.repository.name }} DEPLOY FAILED\nCommit: $(echo ${{ github.sha }} | cut -c1-7)\nBy: ${{ github.actor }}\nLogs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}")
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
             --data-urlencode "chat_id=${{ secrets.TG_CHAT_ID }}" \
             --data-urlencode "text=${MSG}"
