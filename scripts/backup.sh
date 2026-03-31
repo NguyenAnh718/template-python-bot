@@ -2,7 +2,7 @@
 # Бэкап PostgreSQL перед деплоем
 set -e
 
-BACKUP_DIR="/var/backups/$(basename "$(pwd)")"
+BACKUP_DIR="${HOME}/backups/$(basename "$(pwd)")"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="${BACKUP_DIR}/db_${TIMESTAMP}.dump"
 
@@ -13,6 +13,12 @@ echo "📦 Создаём бэкап: $BACKUP_FILE"
 # Загружаем переменные из .env если запускается локально
 if [ -f .env ]; then
   export $(grep -v '^#' .env | grep -v '^\s*$' | xargs)
+fi
+
+# Пропускаем бэкап если postgres не запущен (первый деплой)
+if ! docker compose ps postgres 2>/dev/null | grep -q "running"; then
+  echo "⏭️  PostgreSQL не запущен — бэкап пропущен (первый деплой?)"
+  exit 0
 fi
 
 docker compose exec -T postgres pg_dump \
