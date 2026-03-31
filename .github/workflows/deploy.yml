@@ -22,9 +22,13 @@ jobs:
             cd "${{ secrets.PROJECT_DIR }}"
 
             echo "🔄 Pull latest code..."
-            git fetch origin main
-            git reset --hard origin/main
             git config core.fileMode false
+            for i in 1 2 3; do
+              git fetch origin main && break
+              echo "Retry $i/3..."
+              sleep 5
+            done
+            git reset --hard origin/main
 
             echo "📦 Backup database..."
             ./scripts/backup.sh
