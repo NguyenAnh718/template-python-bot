@@ -12,7 +12,16 @@ echo "📦 Создаём бэкап: $BACKUP_FILE"
 
 # Загружаем переменные из .env если запускается локально
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | grep -v '^\s*$' | xargs)
+  set -a
+  # Убираем: пустые строки, комментарии, inline-комментарии после значений
+  while IFS= read -r line; do
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ -z "${line// }" ]] && continue
+    line="${line%%#*}"   # обрезаем всё после #
+    line="${line%%*( )}" # trim trailing spaces
+    [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]] && export "$line" 2>/dev/null || true
+  done < .env
+  set +a
 fi
 
 # Пропускаем бэкап если postgres не запущен (первый деплой)
