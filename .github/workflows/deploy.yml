@@ -19,7 +19,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             set -e
-            cd ${{ secrets.PROJECT_DIR }}
+            cd "${{ secrets.PROJECT_DIR }}"
 
             echo "🔄 Pull latest code..."
             git pull origin main
